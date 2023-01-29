@@ -1,222 +1,190 @@
-const API_URL = "https://wpahzm6d6ufb764nzelq226dua0oiprt.lambda-url.us-west-2.on.aws"
+(function () {
 
-const CARRER_URL = "https://digitalinnovationone.github.io/roadmaps/"
+  const API_URL = "https://wpahzm6d6ufb764nzelq226dua0oiprt.lambda-url.us-west-2.on.aws"
 
-const questionState = {
-  "questionsList": [
-    {
-      "question": "O design das coisas é algo importante para você?",
-      "order": 1
-    },
-    {
-      "question": "Você se considera uma pessoa criativa?",
-      "order": 2
-    },
-    {
-      "question": "Qual a importância da interface de um software para você?",
-      "order": 3
-    },
-    {
-      "question": "Qual a importância da rapidez de um software para você?",
-      "order": 4
-    },
-    {
-      "question": "Você tem facilidade com raciocínio lógico?",
-      "order": 5
-    },
-    {
-      "question": "O quanto você gosta de matemática e estatística?",
-      "order": 6
-    },
-    {
-      "question": "Você considera a Inteligência Artificial uma área interessante?",
-      "order": 7
-    },
-    {
-      "question": "Você se interessa pelo desenvolvimento de aplicativos para celulares?",
-      "order": 8
-    },
-    {
-      "question": "Desenvolver soluções de segurança para internet é algo que te motiva?",
-      "order": 9
-    },
-    {
-      "question": "Desenvolver soluções de armazenamento em nuvem é algo que seria interessante para você?",
-      "order": 10
-    },
-    {
-      "question": "Trabalhar com a análise de grandes volumes de dados de forma inteligente é algo interessante para você?",
-      "order": 11
-    },
-    {
-      "question": "Analisar a qualidade das coisas é uma boa característica sua?",
-      "order": 12
-    },
-    {
-      "question": "Você trabalharia como desenvolvedor de soluções de internet para casas inteligentes, indústrias e carros autônomos?",
-      "order": 13
-    },
-    {
-      "question": "Você se considera um bom líder para agilizar os trabalhos em equipe?",
-      "order": 14
-    },
-    {
-      "question": "Você considera decisões gerenciais algo atrativo para trabalhar no dia-a-dia?",
-      "order": 15
-    },
-    {
-      "question": "Você considera a carreira de desenvolvimento de games a mais motivadora para a área de TI?",
-      "order": 16
-    }
-  ]
-}
+  const CARRER_URL = "https://digitalinnovationone.github.io/roadmaps/"
 
-const state = {
-  "questionIndex": 0,
-  "responses": ""
-}
+  const questionState = {
+    "questionsList": [
+      {
+        "question": "O design das coisas é algo importante para você?",
+        "order": 1
+      },
+      {
+        "question": "Você se considera uma pessoa criativa?",
+        "order": 2
+      },
+      {
+        "question": "Qual a importância da interface de um software para você?",
+        "order": 3
+      },
+      {
+        "question": "Qual a importância da rapidez de um software para você?",
+        "order": 4
+      },
+      {
+        "question": "Você tem facilidade com raciocínio lógico?",
+        "order": 5
+      },
+      {
+        "question": "O quanto você gosta de matemática e estatística?",
+        "order": 6
+      },
+      {
+        "question": "Você considera a Inteligência Artificial uma área interessante?",
+        "order": 7
+      },
+      {
+        "question": "Você se interessa pelo desenvolvimento de aplicativos para celulares?",
+        "order": 8
+      },
+      {
+        "question": "Desenvolver soluções de segurança para internet é algo que te motiva?",
+        "order": 9
+      },
+      {
+        "question": "Desenvolver soluções de armazenamento em nuvem é algo que seria interessante para você?",
+        "order": 10
+      },
+      {
+        "question": "Trabalhar com a análise de grandes volumes de dados de forma inteligente é algo interessante para você?",
+        "order": 11
+      },
+      {
+        "question": "Analisar a qualidade das coisas é uma boa característica sua?",
+        "order": 12
+      },
+      {
+        "question": "Você trabalharia como desenvolvedor de soluções de internet para casas inteligentes, indústrias e carros autônomos?",
+        "order": 13
+      },
+      {
+        "question": "Você se considera um bom líder para agilizar os trabalhos em equipe?",
+        "order": 14
+      },
+      {
+        "question": "Você considera decisões gerenciais algo atrativo para trabalhar no dia-a-dia?",
+        "order": 15
+      },
+      {
+        "question": "Você considera a carreira de desenvolvimento de games a mais motivadora para a área de TI?",
+        "order": 16
+      }
+    ]
+  }
 
-const httpStatus = {
-  OK: 200,
-  BadRequest: 400
-}
+  const iteratorQuestions = questionState.questionsList[Symbol.iterator]()
+  let iteratorResult
 
-function drawQuestion() {
+  const httpStatus = {
+    OK: 200,
+    BAD_REQUEST: 400
+  }
+  Object.freeze(httpStatus)
+
   const quizz = document.getElementById("question")
-  const questions = questionState.questionsList
+  function renderQuestion() {
+    quizz.innerText = iteratorResult.value.question
+  }
 
-  let questionPicker = questions[state.questionIndex].question
-  quizz.innerHTML = questionPicker
-}
-
-function drawCounter() {
   const counterDisplay = document.getElementById("counter")
+  function renderCounter() {
 
-  let actualIndex = state.questionIndex + 1
-  let maxItem = questionState.questionsList.length
+    let actualIndex = iteratorResult.value.order
+    let maxItem = questionState.questionsList.length
 
-  counterDisplay.innerHTML = `${actualIndex} / ${maxItem}`
-}
-
-function isCompleted() {
-  if (
-    state.questionIndex >
-    (questionState.questionsList.length - 1)
-  ) {
-    return true
-  }
-  else {
-    return false
-  }
-}
-
-async function redirectToCarrer() {
-
-  //send responses to api
-  let carrerPath = ""
-
-  //let resultJSON = await requestAPI("4553212311221211")
-  let resultJSON = await requestAPI(state.responses)
-  console.log(resultJSON)
-
-  if (resultJSON.status == httpStatus.OK) {
-    carrerPath = await getCareerPath(resultJSON.carrer.id)
-    window.location.replace(`${CARRER_URL}${carrerPath}`)
-  } else if (resultJSON.status == httpStatus.BadRequest) {
-    alert(resultJSON.message)
-    window.location.reload(true)
-  } else {
-    console.log(`Status Code ${resultJSON.status} não tratado`)
-  }
-}
-
-async function getCareerPath(careerId) {
-  switch (careerId) {
-    case 1:
-      return 'carrers/backend';
-    case 2:
-      return 'carrers/frontend';
-    case 3:
-      return 'carrers/mobile';
-    case 4:
-      return 'carrers/infra-devops-security';
-    case 5:
-      return 'carrers/cloud';
-    case 6:
-      return 'carrers/data-analytics';
-    case 7:
-      return 'carrers/games';
-    case 8:
-      return 'carrers/qa';
-    case 9:
-      return 'carrers/web3-ia';
-    case 10:
-      return 'carrers/lideranca-softskills';
-    case 11:
-      return 'carrers/crm';
-    default:
-      return 'Invalid careerId';
-  }
-}
-
-
-function bindButtons() {
-  let buttons = [...document
-    .getElementsByClassName("rating")
-  ]
-
-  state.responses = ""
-
-  buttons.forEach(element => {
-    element.addEventListener('click', async () => {
-
-      if (state.responses.length < 16) {
-        state.responses += element.innerHTML
-        state.questionIndex += 1
-      }
-
-      console.log(state.responses)
-
-      if (isCompleted()) {
-        await redirectToCarrer()
-      } else {
-        drawQuestion()
-        drawCounter()
-      }
-    })
-  });
-
-  console.log("buttons started...")
-}
-
-async function requestAPI(answer) {
-
-  let myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-
-  let raw = JSON.stringify({
-    "answers": answer
-  });
-
-  let requestOptions = {
-    method: 'POST',
-    body: raw,
-    redirect: 'follow'
-  };
-
-  try {
-    const response = await fetch(API_URL, requestOptions);
-    return response.json();
-  } catch (error) {
-    console.log(error)
+    counterDisplay.innerText = `${actualIndex} / ${maxItem}`
   }
 
-}
+  async function redirectToCarrer(responses) {
 
-function init() {
-  bindButtons()
-  drawQuestion()
-  drawCounter()
-}
+    //let resultJSON = await requestAPI("4553212311221211")
+    /**@type {Response} */
+    let resultJSON = await requestAPI(responses)
+    console.log(resultJSON)
 
-init()
+    switch (resultJSON.status) {
+      case httpStatus.OK:
+        const carrerPath = await getCareerPath(resultJSON.carrer.id)
+        window.location.replace(`${CARRER_URL}${carrerPath}`)
+        break
+      case httpStatus.BAD_REQUEST:
+        alert(resultJSON.message)
+        window.location.reload(true)
+        break
+      default:
+        console.log(`Status Code ${resultJSON.status} não tratado`)
+    }
+
+  }
+
+  async function requestAPI(answers) {
+
+    const requestOptions = {
+      method: 'POST',
+      body: JSON.stringify({ answers }),
+      redirect: 'follow'
+    };
+
+    try {
+      const response = await fetch(API_URL, requestOptions);
+      return response.json();
+    } catch (error) {
+      console.error(error)
+    }
+
+  }
+
+  async function getCareerPath(careerId) {
+    const CARRERS = {
+      1: 'backend',
+      2: 'frontend',
+      3: 'mobile',
+      4: 'infra-devops-security',
+      5: 'cloud',
+      6: 'data-analytics',
+      7: 'games',
+      8: 'qa',
+      9: 'web3-ia',
+      10: 'lideranca-softskills',
+      11: 'crm'
+    }
+
+    return `carrers/${CARRERS[careerId]}`
+  }
+
+
+  function bindButtons() {
+    let buttons = [...document.getElementsByClassName("rating")]
+
+    let responses = ""
+
+    buttons.forEach(element => {
+      element.addEventListener('click', function () {
+
+        responses += this.innerText
+        console.log(responses)
+
+        iteratorResult = iteratorQuestions.next()
+        if (iteratorResult.done) {
+          redirectToCarrer(responses)
+          return
+        }
+
+        renderQuestion()
+        renderCounter()
+      })
+    });
+
+    console.log("buttons started...")
+  }
+
+  function init() {
+    bindButtons()
+    iteratorResult = iteratorQuestions.next()
+    renderQuestion()
+    renderCounter()
+  }
+
+  init()
+})()
